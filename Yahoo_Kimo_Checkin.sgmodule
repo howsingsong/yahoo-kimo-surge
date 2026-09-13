@@ -1,15 +1,36 @@
 #!name=Yahoo 奇摩值每日簽到
-#!desc=自動擷取 Yahoo Cookie，取得 Crumb 並執行每日奇摩值簽到
+#!desc=自動擷取 Yahoo 登入 Cookie、取得 Crumb，並每日自動完成奇摩值簽到
 #!author=howsingsong
 
-#!arguments=hour:0,minute:10,notify:true,capture_notify:true,debug:false
-#!arguments-desc=可設定每日簽到時間、通知與除錯模式
+#!arguments=checkin_hour:0,checkin_minute:10,notify:true,capture_notify:true,debug:false
+#!arguments-desc=checkin_hour / checkin_minute：每日簽到時間；notify：簽到結果通知；capture_notify：Cookie 更新通知；debug：除錯 Log
 
 [Script]
 
-Yahoo 奇摩值 Cookie 擷取 = type=http-request,pattern=^https:\/\/loyalty\.media\.yahoo\.com\/api\/membership\/v2\/,script-path=https://raw.githubusercontent.com/howsingsong/yahoo-kimo-surge/main/yahoo_capture.js,argument="capture_notify={{{capture_notify}}}&debug={{{debug}}}"
+# ============================================================
+# Yahoo Cookie 自動擷取
+# 開啟 Yahoo App → 奇摩值任務頁面時自動取得登入 Cookie
+# ============================================================
 
-Yahoo 奇摩值每日簽到 = type=cron,cronexp="{{{minute}}} {{{hour}}} * * *",script-path=https://raw.githubusercontent.com/howsingsong/yahoo-kimo-surge/main/yahoo_checkin.js,argument="notify={{{notify}}}&debug={{{debug}}}",wake-system=true,timeout=30
+Yahoo 奇摩值 Cookie 擷取 = type=http-request,pattern=^https:\/\/loyalty\.media\.yahoo\.com\/api\/membership\/v2\/challenges(?:\?|$),script-path=https://raw.githubusercontent.com/howsingsong/yahoo-kimo-surge/main/yahoo_capture.js,argument="capture_notify={{{capture_notify}}}&debug={{{debug}}}"
+
+
+# ============================================================
+# 每日自動簽到
+# 預設每日 00:10
+# 可直接從 Surge 模組參數修改
+# ============================================================
+
+Yahoo 奇摩值每日簽到 = type=cron,cronexp="{{{checkin_minute}}} {{{checkin_hour}}} * * *",script-path=https://raw.githubusercontent.com/howsingsong/yahoo-kimo-surge/main/yahoo_checkin.js,argument="notify={{{notify}}}&debug={{{debug}}}",wake-system=true,timeout=30
+
+
+# ============================================================
+# 手動測試
+# 可在 Surge Script 頁面長按手動執行
+# ============================================================
+
+Yahoo 奇摩值手動簽到 = type=generic,script-path=https://raw.githubusercontent.com/howsingsong/yahoo-kimo-surge/main/yahoo_checkin.js,argument="notify={{{notify}}}&debug={{{debug}}}",timeout=30
+
 
 [MITM]
 
